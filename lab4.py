@@ -1,7 +1,21 @@
 import copy
 import random
 import math
+#Jared Matson
+#1570490
+#Lab4.py
+#A demonstration of the simulated annealing program, does not always find the best solution a the program does not run forever, but
+#will find the correction solution ~10-20% of the time with luck
 
+#class Node
+#This class represents a possible state in the puzzle
+# value = the value of the Node e.g
+#[1 8 2]
+#[2   4]
+#[7 6 5]
+#gvalue = the gValue of the Node, e.g the amount of moves it took to get to that state
+#parent = the parent Node or previous state of the node
+#goodOrBad = if the Node is a result of a bad move
 class Node:
     def __init__(self, value, parent, goodOrBad) -> None:
         self.value = value
@@ -10,7 +24,8 @@ class Node:
         self.goodOrBad = goodOrBad
     
 
-
+#def simulated annealing(Current)
+#given an initial state, will use simulated annealing to attempt and find the best state
 def simulatedAnnealing(current):
     goalFound = False
     t = 1
@@ -19,7 +34,7 @@ def simulatedAnnealing(current):
     print("Initial state:")
     printboard(current.value)
     print("")
-    while True:
+    while True: #checking to see if goal state was found but randomly escaped
         if(current.value == [[0,1,2],[3,4,5],[6,7,8]]):
             goalFound = True
         t += 1
@@ -30,11 +45,10 @@ def simulatedAnnealing(current):
             return current
         for action in possibleActions(current, alreadyTravelledStates):
             potentialMoves.append(action)
-        next = potentialMoves[random.randint(0, len(potentialMoves) - 1)]
+        next = potentialMoves[random.randint(0, len(potentialMoves) - 1)] #random move in list
         #higher manhattanValue = better
         deltaE = manHattanValue(next) - manHattanValue(current)
         if deltaE > 0:
-            #alreadyTravelledStates.append(next)
             current = next
             printboard(current.value)
             print("(value = ",end="")
@@ -42,13 +56,9 @@ def simulatedAnnealing(current):
             print(")")
             print("")
         else:
-            x = random.uniform(0.5,1)
+            x = random.uniform(0.5,1) #due to how random works, seem to have best luck with higher random numbers (very slightly lower probability of initially accepting bad states)
             y =  math.exp(deltaE/T)
-            if x < y: #math is backwards here , will always go here
-                #alreadyTravelledStates.append(next)
-                print(x)
-                print(y)
-                print(T)
+            if x < y: #probabilty of taking worse move
                 current = next
                 printboard(current.value)
                 print("(value = ",end="")
@@ -57,15 +67,27 @@ def simulatedAnnealing(current):
                 print("")
             
         potentialMoves = []
-        alreadyTravelledStates = []
-
+        alreadyTravelledStates = [] #only keep track of current parent node
+#schedule(t)
+#given t, will return T to use in the annealing process
+#parameters : t - current interation number
+#Returns : T - temperature to be used in probability
 def schedule(t):
-    alteredTValue = 12 #180    10 @ 0.01 12 @ 0.005
+    alteredTValue = 5
     while t > 0:
         alteredTValue = alteredTValue - 0.005
         t = t - 1
     return round(alteredTValue,3)
 
+# def printBoard(board)
+# Will iterate through the puzzle (2d array) and will print the 
+# values to better represent what the 8 number puzzle actually looks like
+
+# Parameters:
+# board - the board being printed
+
+# Returns:
+# N/A
 def printboard(board):
     for row in board:
         for value in row:
@@ -75,7 +97,9 @@ def printboard(board):
                 print(str(value) + " ", end='')
         print("")
         
-
+#Given a state, will return its manhattan distance (0 - mahattan distance)
+#Parameters : State - the state you are wanting to get the h value of
+#Returns: negative hueristic value
 def manHattanValue(state):
     HValue = 0
     oneGoal = (0,1)
@@ -115,7 +139,16 @@ def manHattanValue(state):
                     HValue += abs(eightGoal[1] - col)
     state.h = 0 - HValue
     return(0-HValue)
+# def possibleActions(currentState, alreadyTraveledStates)
+# given the current Node and a list of already already travelled states, will determine
+# other potential moves that can be made
 
+# Parameters:
+# currentState - the Node we want to branch out from
+# alreadyTraveledStates - the parent node so it wont travel immediatly backwards
+
+# Returns:
+# list of nodes to be randomly selected
 def possibleActions(currentState, alreadyTraveledStates):
     currentStateValue = currentState.value #grab the 2d array value from the node
     possibleActionsList = []
