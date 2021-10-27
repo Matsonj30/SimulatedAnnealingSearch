@@ -12,6 +12,7 @@ class Node:
 
 
 def simulatedAnnealing(current):
+    goalFound = False
     t = 1
     alreadyTravelledStates = [current]
     potentialMoves = []
@@ -19,9 +20,13 @@ def simulatedAnnealing(current):
     printboard(current.value)
     print("")
     while True:
+        if(current.value == [[0,1,2],[3,4,5],[6,7,8]]):
+            goalFound = True
         t += 1
         T = schedule(t)
+        alreadyTravelledStates.append(current)
         if (T == 0):
+            print(goalFound)
             return current
         for action in possibleActions(current, alreadyTravelledStates):
             potentialMoves.append(action)
@@ -29,7 +34,7 @@ def simulatedAnnealing(current):
         #higher manhattanValue = better
         deltaE = manHattanValue(next) - manHattanValue(current)
         if deltaE > 0:
-            alreadyTravelledStates.append(next)
+            #alreadyTravelledStates.append(next)
             current = next
             printboard(current.value)
             print("(value = ",end="")
@@ -37,23 +42,29 @@ def simulatedAnnealing(current):
             print(")")
             print("")
         else:
-            print(math.exp(deltaE/T))
-            if random.uniform(0,1) < math.exp(deltaE/T): #math is backwards here , will always go here
-                alreadyTravelledStates.append(next)
+            x = random.uniform(0.5,1)
+            y =  math.exp(deltaE/T)
+            if x < y: #math is backwards here , will always go here
+                #alreadyTravelledStates.append(next)
+                print(x)
+                print(y)
+                print(T)
                 current = next
                 printboard(current.value)
                 print("(value = ",end="")
                 print(current.h, end="")
                 print("), BAD MOVE was chosen")
                 print("")
+            
         potentialMoves = []
+        alreadyTravelledStates = []
 
 def schedule(t):
-    alteredTValue = 5
+    alteredTValue = 12 #180    10 @ 0.01 12 @ 0.005
     while t > 0:
-        alteredTValue = alteredTValue - 0.01
+        alteredTValue = alteredTValue - 0.005
         t = t - 1
-    return alteredTValue
+    return round(alteredTValue,3)
 
 def printboard(board):
     for row in board:
@@ -157,4 +168,9 @@ simulatedAnnealing(Node([[1,2,3],[4,5,8],[6,7,0]], None, "N/A"))
 #print(manHattanValue(x))
 #print(schedule(100))
 #print(random.uniform(0,1))
-#print(math.exp(-5/5)) #200 seems highest we can go
+
+#print(math.exp(-22/30)) #200 seems highest we can go
+#print(math.exp(-10/25)) #200 seems highest we can go
+#print(math.exp(-10/50)) #200 seems highest we can go
+#print(math.exp(-10/100)) #200 seems highest we can go
+#print(math.exp(-10/200)) #200 seems highest we can go
